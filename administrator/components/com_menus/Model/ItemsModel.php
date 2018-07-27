@@ -189,7 +189,20 @@ class ItemsModel extends ListModel
 
 		$language = $this->getUserStateFromRequest($this->context . '.filter.language', 'filter_language', '');
 		$this->setState('filter.language', $language);
+        //View Filter Type
+        $viewtype = $this->getUserStateFromRequest($this->context . '.viewtype', 'filter_viewtype');
+        if(!empty($viewtype)){
+            $viewtype_arr=  explode("~",$viewtype);
+            if(count($viewtype_arr)==2){
+                $this->setState('component_id', intval($viewtype_arr[0]));
+                $this->setState("searchview",$viewtype_arr[1] );
+            }
+            if(count($viewtype_arr)==1){
+                $this->setState('component_id', intval($viewtype_arr[0]));
+                $this->setState("searchview", $viewtype_arr[0]);
 
+            }
+        }
 		// Component parameters.
 		$params = ComponentHelper::getParams('com_menus');
 		$this->setState('params', $params);
@@ -466,7 +479,12 @@ class ItemsModel extends ListModel
 		{
 			$query->where('a.level <= ' . (int) $level);
 		}
+		//Filter on the view Type
+        if ( $viewtype = $this->getState('searchview'))
+        {
+            $query->where("a.link like '%view=$viewtype%'");
 
+        }
 		// Filter on the language.
 		if ($language = $this->getState('filter.language'))
 		{
