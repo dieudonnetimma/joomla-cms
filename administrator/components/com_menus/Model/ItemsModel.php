@@ -192,7 +192,7 @@ class ItemsModel extends ListModel
         //View Filter Type
         $viewtype = $this->getUserStateFromRequest($this->context . '.viewtype', 'filter_viewtype');
         if(!empty($viewtype)){
-            $viewtype_arr=  explode("~",$viewtype);
+            $viewtype_arr=  json_decode($viewtype);
             if(count($viewtype_arr)==2){
                 $this->setState('component_id', intval($viewtype_arr[0]));
                 $this->setState("searchview",$viewtype_arr[1] );

@@ -32,7 +32,7 @@ class MenuItemByViewTypeField extends GroupedlistField
      */
     protected function getGroups()
     {
-        $lang = Factory::getLanguage();
+        $language = Factory::getLanguage();
         $app       = \JFactory::getApplication();
         $input     = $app->input;
         $filters = $input->getInputForRequestMethod("filter") != null? $input->getInputForRequestMethod("filter"): array() ;
@@ -72,29 +72,27 @@ class MenuItemByViewTypeField extends GroupedlistField
         $extensionsname = $db->setQuery($query)->loadObjectList();
         foreach ($extensionsname as $menu)
         {
-            $lang->load($menu->name . '.sys', JPATH_ADMINISTRATOR, null, false, true)
-            || $lang->load($menu->name . '.sys', JPATH_ADMINISTRATOR . '/components/' . $menu->name, null, false, true);
+            $language->load($menu->name . '.sys', JPATH_ADMINISTRATOR, null, false, true)
+            || $language->load($menu->name . '.sys', JPATH_ADMINISTRATOR . '/components/' . $menu->name, null, false, true);
 
             $viewarray = array();
             parse_str($menu->link, $viewarray);
             if (isset($viewarray['view']))
             {
-
-
-
                 $viewarray['layout'] = $viewarray['layout'] ?? 'default';
-
-                // Attempt to load the layout xml file.
-                // If Alternative Menu Item, get template folder for layout file
                 if (strpos($viewarray['layout'], ':') > 0)
                 {
                     // Use template folder for layout file
                     $temp = explode(':', $viewarray['layout']);
                     $file = JPATH_SITE . '/templates/' . $temp[0] . '/html/' . $menu->name . '/' . $viewarray['view'] . '/' . $temp[1] . '.xml';
+                    if (!file_exists($file))
+                    {
+                        $file = JPATH_SITE . '/components/' . $menu->name . '/views/' . $viewarray['view'] . '/tmpl/' . $temp[1] . '.xml';
+                    }else{
+                        $file = JPATH_SITE . '/components/' . $menu->name . '/view/' . $viewarray['view'] . '/tmpl/' . $temp[1] . '.xml';
 
-                    // Load template language file
-                    $lang->load('tpl_' . $temp[0] . '.sys', JPATH_SITE, null, false, true)
-                    ||	$lang->load('tpl_' . $temp[0] . '.sys', JPATH_SITE . '/templates/' . $temp[0], null, false, true);
+                    }
+
                 }
                 else
                 {
@@ -127,13 +125,13 @@ class MenuItemByViewTypeField extends GroupedlistField
             }
             if(count($viewarray)>0){
                 $groups[Text::_($menu->name)][] = HTMLHelper::_('select.option',
-                    implode("~", [  $menu->exid,  $viewarray["view"]]),
+                    json_encode([$menu->exid,  $viewarray["view"]]),
                     $viewTranslate
 
                 );
             }else{
                 $groups[Text::_($menu->name)][] = HTMLHelper::_('select.option',
-                    implode("~",[ $menu->exid]),
+                    json_encode([ $menu->exid]),
                     Text::_($menu->name)
 
                 );
